@@ -1,8 +1,27 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './Team.css';
+import TeamForm from './TeamForm';
 
 const Team = () => {
+  const [team, setTeam] = useState([]);
+  const [showTeamForm, setShowTeamForm] = useState(false);
+
+  useEffect(() => {
+    axios.get('/api/team')
+      .then(res => setTeam(res.data))
+      .catch(() => setTeam([]));
+  }, []);
+
+  const handleAddTeam = () => setShowTeamForm(true);
+
+  // Group team members by role for display
+  const chief = team.find(m => m.role && m.role.includes('Chief'));
+  const architects = team.filter(m => m.role && m.role.includes('Architect'));
+  const neurons = team.filter(m => m.role && m.role.includes('Neuron'));
+  const parameters = team.filter(m => m.role && m.role.includes('Parameter'));
+
   return (
     <div className="team-page">
       {/* Navigation */}
@@ -25,6 +44,7 @@ const Team = () => {
       {/* Team Section */}
       <section className="team-section">
         <div className="team-container">
+          <button onClick={handleAddTeam} className="add-team-btn" style={{marginBottom:'20px',padding:'10px 20px',background:'#007bff',color:'#fff',border:'none',borderRadius:'4px'}}>Add Team Member</button>
           <div className="section-header">
             <h1 className="team-main-title">Our Team</h1>
             <div className="section-divider"></div>
@@ -34,71 +54,35 @@ const Team = () => {
           </div>
 
           {/* Chief Optimizer - Center Top */}
-          <div className="chief-optimizer-section">
-            <div className="chief-card">
-              <div className="member-avatar chief-avatar">
-                <div className="avatar-placeholder">CG</div>
-              </div>
-              <h2 className="member-name chief-name">Chirag Garg</h2>
-              <h3 className="member-role chief-role">Chief Optimizer</h3>
-              <p className="member-details">4th Year, Computer Science & Engineering</p>
-              <div className="member-description">
-                Leading the optimization strategies and overseeing the technical excellence of all AI/ML initiatives.
+          {chief && (
+            <div className="chief-optimizer-section">
+              <div className="chief-card">
+                <div className="member-avatar chief-avatar">
+                  <div className="avatar-placeholder">{chief.avatar}</div>
+                </div>
+                <h2 className="member-name chief-name">{chief.name}</h2>
+                <h3 className="member-role chief-role">{chief.role}</h3>
+                <p className="member-details">{chief.details}</p>
+                <div className="member-description">{chief.description}</div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Architects */}
           <div className="architects-section">
             <h3 className="section-title">Architects</h3>
             <div className="architects-grid">
-              <div className="member-card architect-card">
-                <div className="member-avatar">
-                  <div className="avatar-placeholder">SR</div>
+              {architects.map((member, idx) => (
+                <div className="member-card architect-card" key={idx}>
+                  <div className="member-avatar">
+                    <div className="avatar-placeholder">{member.avatar}</div>
+                  </div>
+                  <h4 className="member-name">{member.name}</h4>
+                  <h5 className="member-role">{member.role}</h5>
+                  <p className="member-details">{member.details}</p>
+                  <div className="member-description">{member.description}</div>
                 </div>
-                <h4 className="member-name">Sundram Rai</h4>
-                <h5 className="member-role">Vision Architect</h5>
-                <p className="member-details">3rd Year, Electrical Engineering</p>
-                <div className="member-description">
-                  Designing the strategic vision and future roadmap for the club's AI initiatives.
-                </div>
-              </div>
-
-              <div className="member-card architect-card">
-                <div className="member-avatar">
-                  <div className="avatar-placeholder">SS</div>
-                </div>
-                <h4 className="member-name">Shivajay Saxena</h4>
-                <h5 className="member-role">Language Architect</h5>
-                <p className="member-details">4th Year, Computer Science & Engineering</p>
-                <div className="member-description">
-                  Specializing in NLP, language models, and communication frameworks for AI systems.
-                </div>
-              </div>
-
-              <div className="member-card architect-card">
-                <div className="member-avatar">
-                  <div className="avatar-placeholder">SR</div>
-                </div>
-                <h4 className="member-name">Sundram Rai</h4>
-                <h5 className="member-role">Policy Architect</h5>
-                <p className="member-details">3rd Year, Electrical Engineering</p>
-                <div className="member-description">
-                  Developing ethical AI policies and governance frameworks for responsible innovation.
-                </div>
-              </div>
-
-              <div className="member-card architect-card">
-                <div className="member-avatar">
-                  <div className="avatar-placeholder">CG</div>
-                </div>
-                <h4 className="member-name">Chirag Garg</h4>
-                <h5 className="member-role">Generative Architect</h5>
-                <p className="member-details">4th Year, Computer Science & Engineering</p>
-                <div className="member-description">
-                  Leading generative AI research and implementation of creative AI solutions.
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
@@ -106,38 +90,16 @@ const Team = () => {
           <div className="neurons-section">
             <h3 className="section-title">Neurons</h3>
             <div className="neurons-grid">
-              <div className="member-card neuron-card">
-                <div className="member-avatar neuron-avatar">
-                  <div className="avatar-placeholder">BK</div>
+              {neurons.map((member, idx) => (
+                <div className="member-card neuron-card" key={idx}>
+                  <div className="member-avatar neuron-avatar">
+                    <div className="avatar-placeholder">{member.avatar}</div>
+                  </div>
+                  <h4 className="member-name">{member.name}</h4>
+                  <h5 className="member-role">{member.role}</h5>
+                  <div className="member-description">{member.description}</div>
                 </div>
-                <h4 className="member-name">B Kranthi Swaroop</h4>
-                <h5 className="member-role">Core Neuron</h5>
-                <div className="member-description">
-                  Driving neural network implementations and deep learning research initiatives.
-                </div>
-              </div>
-
-              <div className="member-card neuron-card">
-                <div className="member-avatar neuron-avatar">
-                  <div className="avatar-placeholder">RS</div>
-                </div>
-                <h4 className="member-name">Rahul Sharma</h4>
-                <h5 className="member-role">Core Neuron</h5>
-                <div className="member-description">
-                  Specializing in machine learning algorithms and data processing pipelines.
-                </div>
-              </div>
-
-              <div className="member-card neuron-card">
-                <div className="member-avatar neuron-avatar">
-                  <div className="avatar-placeholder">AS</div>
-                </div>
-                <h4 className="member-name">Aditya Kumar Sahu</h4>
-                <h5 className="member-role">Core Neuron</h5>
-                <div className="member-description">
-                  Focusing on AI model optimization and performance enhancement strategies.
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
@@ -145,17 +107,43 @@ const Team = () => {
           <div className="parameters-section">
             <h3 className="section-title">Parameters</h3>
             <div className="parameters-grid">
-              <div className="member-card parameter-card">
-                <div className="member-avatar parameter-avatar">
-                  <div className="avatar-placeholder">+</div>
+              {parameters.length > 0 ? parameters.map((member, idx) => (
+                <div className="member-card parameter-card" key={idx}>
+                  <div className="member-avatar parameter-avatar">
+                    <div className="avatar-placeholder">{member.avatar}</div>
+                  </div>
+                  <h4 className="member-name">{member.name}</h4>
+                  <h5 className="member-role">{member.role}</h5>
+                  <div className="member-description">{member.description}</div>
                 </div>
-                <h4 className="member-name">Join Our Team</h4>
-                <h5 className="member-role">Parameter Position</h5>
-                <div className="member-description">
-                  Ready to contribute to AI/ML innovation? Join our growing team of parameters!
+              )) : (
+                <div className="member-card parameter-card">
+                  <div className="member-avatar parameter-avatar">
+                    <div className="avatar-placeholder">+</div>
+                  </div>
+                  <h4 className="member-name">Join Our Team</h4>
+                  <h5 className="member-role">Parameter Position</h5>
+                  <div className="member-description">
+                    Ready to contribute to AI/ML innovation? Join our growing team of parameters!
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
+          </div>
+
+          {/* Add Team Member Form */}
+          <div className="add-team-member-section">
+            {showTeamForm && (
+              <TeamForm
+                onSubmit={async (payload) => {
+                  await axios.post('/api/team', payload);
+                  setShowTeamForm(false);
+                  const res = await axios.get('/api/team');
+                  setTeam(res.data);
+                }}
+                onCancel={() => setShowTeamForm(false)}
+              />
+            )}
           </div>
         </div>
       </section>

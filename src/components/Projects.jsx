@@ -1,8 +1,51 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './Projects.css';
+import ProjectForm from './ProjectForm';
 
 const Projects = () => {
+  const [projects, setProjects] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    axios.get('/api/projects')
+      .then(res => {
+        setProjects(res.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Error fetching projects:', err);
+        setError(err.message);
+        setProjects([]);
+        setLoading(false);
+      });
+  }, []);
+
+  const handleAddProject = () => setShowForm(true);
+
+  if (loading) {
+    return (
+      <div className="projects-page">
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', color: 'white' }}>
+          Loading projects...
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="projects-page">
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', color: 'red' }}>
+          Error loading projects: {error}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="projects-page">
       {/* Navigation */}
@@ -35,160 +78,52 @@ const Projects = () => {
 
           {/* Projects Grid */}
           <div className="projects-grid">
-            
-            {/* Sample Project 1 */}
-            <div className="project-card">
-              <div className="project-image">
-                <img src="/project-placeholder.jpg" alt="AI Vision System" className="project-img" />
-                <div className="project-overlay">
-                  <div className="project-status">In Progress</div>
-                </div>
-              </div>
-              
-              <div className="project-content">
-                <h3 className="project-name">AI Vision System</h3>
-                <p className="project-description">
-                  Advanced computer vision system for real-time object detection and classification using deep learning models. 
-                  Implements state-of-the-art YOLO architecture with custom dataset training.
-                </p>
-                
-                <div className="project-tech-stack">
-                  <span className="tech-tag">Python</span>
-                  <span className="tech-tag">TensorFlow</span>
-                  <span className="tech-tag">OpenCV</span>
-                  <span className="tech-tag">YOLO</span>
-                </div>
-                
-                <div className="project-members">
-                  <h4 className="members-title">Team Members</h4>
-                  <div className="members-list">
-                    <div className="member-avatar-small">
-                      <span>CG</span>
-                    </div>
-                    <div className="member-avatar-small">
-                      <span>SS</span>
-                    </div>
-                    <div className="member-avatar-small">
-                      <span>BK</span>
-                    </div>
+            {projects.map(project => (
+              <div className="project-card" key={project.id}>
+                <div className="project-image">
+                  <img src={project.image} alt={project.name} className="project-img" />
+                  <div className="project-overlay">
+                    <div className={`project-status${project.status === 'Completed' ? ' completed' : project.status === 'Planning' ? ' planning' : ''}`}>{project.status}</div>
                   </div>
                 </div>
-                
-                <div className="project-links">
-                  <a href="#" className="project-link github-link">
-                    <span>🔗 GitHub</span>
-                  </a>
-                  <a href="#" className="project-link demo-link">
-                    <span>🚀 Live Demo</span>
-                  </a>
-                  <a href="#" className="project-link docs-link">
-                    <span>📄 Documentation</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Sample Project 2 */}
-            <div className="project-card">
-              <div className="project-image">
-                <img src="/project-placeholder.jpg" alt="NLP Chatbot" className="project-img" />
-                <div className="project-overlay">
-                  <div className="project-status completed">Completed</div>
-                </div>
-              </div>
-              
-              <div className="project-content">
-                <h3 className="project-name">Intelligent Chatbot</h3>
-                <p className="project-description">
-                  Natural Language Processing chatbot with contextual understanding and multi-domain knowledge. 
-                  Features sentiment analysis and personalized response generation.
-                </p>
-                
-                <div className="project-tech-stack">
-                  <span className="tech-tag">Python</span>
-                  <span className="tech-tag">NLTK</span>
-                  <span className="tech-tag">Transformers</span>
-                  <span className="tech-tag">Flask</span>
-                </div>
-                
-                <div className="project-members">
-                  <h4 className="members-title">Team Members</h4>
-                  <div className="members-list">
-                    <div className="member-avatar-small">
-                      <span>SR</span>
-                    </div>
-                    <div className="member-avatar-small">
-                      <span>RS</span>
+                <div className="project-content">
+                  <h3 className="project-name">{project.name}</h3>
+                  <p className="project-description">{project.description}</p>
+                  <div className="project-tech-stack">
+                    {project.techStack?.map((tech, idx) => (
+                      <span className="tech-tag" key={idx}>{tech}</span>
+                    ))}
+                  </div>
+                  <div className="project-members">
+                    <h4 className="members-title">Team Members</h4>
+                    <div className="members-list">
+                      {project.members?.map((member, idx) => (
+                        <div className="member-avatar-small" key={idx}>
+                          <span>{member}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                </div>
-                
-                <div className="project-links">
-                  <a href="#" className="project-link github-link">
-                    <span>🔗 GitHub</span>
-                  </a>
-                  <a href="#" className="project-link demo-link">
-                    <span>🚀 Live Demo</span>
-                  </a>
-                  <a href="#" className="project-link paper-link">
-                    <span>📑 Research Paper</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Sample Project 3 */}
-            <div className="project-card">
-              <div className="project-image">
-                <img src="/project-placeholder.jpg" alt="ML Analytics Platform" className="project-img" />
-                <div className="project-overlay">
-                  <div className="project-status planning">Planning</div>
-                </div>
-              </div>
-              
-              <div className="project-content">
-                <h3 className="project-name">ML Analytics Platform</h3>
-                <p className="project-description">
-                  Comprehensive machine learning analytics platform for data visualization, model training, 
-                  and performance monitoring with interactive dashboards.
-                </p>
-                
-                <div className="project-tech-stack">
-                  <span className="tech-tag">React</span>
-                  <span className="tech-tag">Node.js</span>
-                  <span className="tech-tag">MongoDB</span>
-                  <span className="tech-tag">Scikit-learn</span>
-                </div>
-                
-                <div className="project-members">
-                  <h4 className="members-title">Team Members</h4>
-                  <div className="members-list">
-                    <div className="member-avatar-small">
-                      <span>AS</span>
-                    </div>
-                    <div className="member-avatar-small">
-                      <span>CG</span>
-                    </div>
-                    <div className="member-avatar-small">
-                      <span>SR</span>
-                    </div>
-                    <div className="member-avatar-small">
-                      <span>BK</span>
-                    </div>
+                  <div className="project-links">
+                    {project.links?.github && (
+                      <a href={project.links.github} className="project-link github-link"><span>� GitHub</span></a>
+                    )}
+                    {project.links?.demo && (
+                      <a href={project.links.demo} className="project-link demo-link"><span>🚀 Live Demo</span></a>
+                    )}
+                    {project.links?.docs && (
+                      <a href={project.links.docs} className="project-link docs-link"><span>📄 Documentation</span></a>
+                    )}
+                    {project.links?.paper && (
+                      <a href={project.links.paper} className="project-link paper-link"><span>📑 Research Paper</span></a>
+                    )}
+                    {project.links?.proposal && (
+                      <a href={project.links.proposal} className="project-link proposal-link"><span>📋 Proposal</span></a>
+                    )}
                   </div>
                 </div>
-                
-                <div className="project-links">
-                  <a href="#" className="project-link github-link">
-                    <span>🔗 GitHub</span>
-                  </a>
-                  <a href="#" className="project-link proposal-link">
-                    <span>📋 Proposal</span>
-                  </a>
-                </div>
               </div>
-            </div>
-
+            ))}
             {/* Add New Project Card */}
             <div className="project-card add-project-card">
               <div className="add-project-content">
@@ -197,12 +132,22 @@ const Projects = () => {
                 <p className="add-project-description">
                   Have an innovative AI/ML project idea? Submit your project proposal and showcase your work!
                 </p>
-                <button className="add-project-btn">
+                <button className="add-project-btn" onClick={handleAddProject}>
                   <span>Submit Project</span>
                 </button>
+                {showForm && (
+                  <ProjectForm
+                    onSubmit={async (payload) => {
+                      await axios.post('/api/projects', payload);
+                      setShowForm(false);
+                      const res = await axios.get('/api/projects');
+                      setProjects(res.data);
+                    }}
+                    onCancel={() => setShowForm(false)}
+                  />
+                )}
               </div>
             </div>
-
           </div>
         </div>
       </section>
